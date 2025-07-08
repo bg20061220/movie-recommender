@@ -6,8 +6,6 @@ from sklearn.preprocessing import MinMaxScaler
 def clean_movie_data(file_path):
     # Load the dataset (adjust separator if needed)
     df = pd.read_csv(file_path)
-    print("Before cleaning:")
-    print(df['popularity'].head(2).tolist())
     # Columns to keep for recommendation
     useful_cols = [
         'title',
