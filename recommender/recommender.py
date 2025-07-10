@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from load_data import clean_movie_data
+from .load_data import clean_movie_data
 from rapidfuzz import process , fuzz
 df = clean_movie_data('data/movies.csv')
 
@@ -24,7 +24,7 @@ tfidf_matrix = vectorizer.fit_transform(df['combined_features'])
 similarity_matrix = cosine_similarity(tfidf_matrix, tfidf_matrix)
 
 # Function to get movie recommendations based on title
-def get_recommendations(movie_title, df, similarity_matrix, top_n=5):
+def recommend(movie_title, df, top_n=30):
     titles = df['title'].tolist()
 
     # Use fuzzy matching to find the closest title
@@ -45,4 +45,4 @@ def get_recommendations(movie_title, df, similarity_matrix, top_n=5):
     return similar_movies
 
 if __name__ == "__main__":
-    print(get_recommendations("Avengers Ultron" , df , similarity_matrix, top_n=5))
+    print(recommend("Avengers Ultron" , df , top_n=5))
