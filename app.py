@@ -1,7 +1,7 @@
 import streamlit as st 
 from recommender.load_data import clean_movie_data
 from recommender.genre_recommender import  get_recommendations 
-from recommender.recommender import recommend
+from recommender.recommender import recommend , hybrid_recommend
 # Load the movie data
 @st.cache_data
 def load_data() :
@@ -11,7 +11,7 @@ df = load_data()
 
 st.title("🎬 Movie Recommendation App")
 
-tab1, tab2 = st.tabs(["📌 Content-Based", "🧠 Quiz-Based"])
+tab1, tab2 , tab3  = st.tabs(["📌 Content-Based", "🧠 Quiz-Based" , "Hybrid Recommender"])
 
 # Content Based Recommender 
 
@@ -47,6 +47,7 @@ with tab1 :
 # Quiz Based Recommender
 
 with tab2 : 
+
     st.subheader("Take Quick Movie Taste Quiz")
 
     # Initialize the quiz state 
@@ -123,3 +124,53 @@ with tab2 :
                 ]:
                     st.session_state.pop(key, None)
             st.rerun()     
+
+ # Hybrid Recommender
+
+    with tab3 : 
+        st.subheader("Hybrid Movie Recommender")
+        if "hybrid_rec_index" not in st.session_state : 
+             st.session_state.hybrid_rec_index = 0 
+             st.session_state.hybrid_rec_results = [] 
+        if "run_hybrid" not in st.session_state: 
+            st.session_state.run_hybrid = False      
+         
+        content_weight = st.slider("Content Similarity Weight", 
+            min_value=0.0, max_value=1.0, value=0.5, step=0.05, 
+            help="Adjust the weight for content similarity in hybrid recommendations.")
+        
+        genre_weight = 1 - content_weight
+
+        base_movie = st.text_input("Enter a movie title for hybrid recommendations:")
+        quiz_done = st.session_state.get('quiz_done', False)
+        genre_scores = st.session_state.get('genre_scores', {})
+
+        if st.button("Get Hybrid Recommendations"):
+            if not quiz_done or not genre_scores or sum(genre_scores.values()) == 0:
+                st.warning("🚨 Please complete the quiz first.")
+            elif base_movie.strip() == "":
+                st.warning("Please enter a valid movie title.")
+            else:
+                st.session_state.run_hybrid = True
+                st.session_state.hybrid_rec_index = 0
+                st.session_state.hybrid_rec_results = hybrid_recommend(
+                    base_movie, df, genre_scores, content_weight, genre_weight
+                )
+                st.rerun()
+
+        # Now check if hybrid should run
+        if st.session_state.run_hybrid and st.session_state.hybrid_rec_results:
+            recs_to_show = st.session_state.hybrid_rec_results[
+                st.session_state.hybrid_rec_index : st.session_state.hybrid_rec_index + 5
+            ]
+            for title in recs_to_show:
+                st.markdown(f"- {title}")
+            st.session_state.hybrid_rec_index += 5
+
+            if st.session_state.hybrid_rec_index >= len(st.session_state.hybrid_rec_results):
+                st.info("✅ No more recommendations.")
+            else:
+                if st.button("Show More"):
+                    st.rerun()
+
+        
