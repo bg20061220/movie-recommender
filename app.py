@@ -50,6 +50,8 @@ with tab2 :
     st.subheader("Take Quick Movie Taste Quiz")
 
     # Initialize the quiz state 
+    if 'recs_to_show' not in st.session_state: 
+        st.session_state.recs_to_show = 5 
     if "quiz_started" not in st.session_state : 
         st.session_state.quiz_started = False 
         st.session_state.quiz_index = 0 
@@ -107,9 +109,13 @@ with tab2 :
             st.subheader("🎥 Movies you'll probably love:")
 
             recs = get_recommendations(st.session_state.genre_scores, df)
-            for title in recs : 
+            for title in recs[:st.session_state.recs_to_show]:  
                 st.markdown(f"- {title}")
 
+            if st.session_state.recs_to_show < len(recs): 
+                if st.button("Show More Recommendations"):
+                    st.session_state.recs_to_show += 5
+                    st.rerun()
             if st.button("🔁 Restart Quiz"):
                 for key in [
                     "quiz_started", "quiz_index", "quiz_done",

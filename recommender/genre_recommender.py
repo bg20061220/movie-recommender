@@ -60,13 +60,13 @@ def get_recommendations(genre_scores, df):
      genre1, genre2 = top_genres
      
      genre1_only = df[df['genres'].apply(lambda x: genre1 in x and genre2 not in x)]
-     genre1_only = genre1_only.sort_values(by= 'vote_count' , ascending=False).head(3)
+     genre1_only = genre1_only.sort_values(by= 'vote_count' , ascending=False).head(8)
 
      genre2_only = df[df['genres'].apply(lambda x: genre2 in x and genre1 not in x)]
-     genre2_only = genre2_only.sort_values(by = 'vote_count' , ascending=False).head(3)
+     genre2_only = genre2_only.sort_values(by = 'vote_count' , ascending=False).head(8)
 
      both_genres = df[df['genres'].apply(lambda x: genre1 in x and genre2 in x)]
-     both_genres = both_genres.sort_values(by='vote_count', ascending=False).head(3)
+     both_genres = both_genres.sort_values(by='vote_count', ascending=False).head(8)
 
      final_recommendations = pd.concat([genre1_only, genre2_only, both_genres])
      final_recommendations = final_recommendations['title'].tolist()
