@@ -102,6 +102,8 @@ with tab2 :
                 del st.session_state[prev_key]     
             if st.session_state.quiz_index >= 10 : 
                 st.session_state.quiz_done = True 
+            print(f"Quiz done in tab 2 : {st.session_state.get('quiz_done', False)}")
+                  
 
             st.rerun()
         # Show Results 
@@ -127,8 +129,15 @@ with tab2 :
 
  # Hybrid Recommender
 
-    with tab3 : 
+with tab3 : 
         st.subheader("Hybrid Movie Recommender")
+        quiz_done = st.session_state.get('quiz_done', False)
+        genre_scores = st.session_state.get('genre_scores', {})
+        is_disabled = not quiz_done or not genre_scores or sum(genre_scores.values()) == 0
+        print(f"Quiz done: {quiz_done}")
+        if is_disabled:
+            st.warning("🚨 You must complete the quiz first to use the hybrid recommender.")
+            st.info("Go to the **Quiz Tab** to finish it. Once done, this section will unlock.")
         if "hybrid_rec_index" not in st.session_state : 
              st.session_state.hybrid_rec_index = 0 
              st.session_state.hybrid_rec_results = [] 
@@ -137,18 +146,16 @@ with tab2 :
          
         content_weight = st.slider("Content Similarity Weight", 
             min_value=0.0, max_value=1.0, value=0.5, step=0.05, 
-            help="Adjust the weight for content similarity in hybrid recommendations.")
+            help="Adjust the weight for content similarity in hybrid recommendations.", disabled=is_disabled) 
         
         genre_weight = 1 - content_weight
 
-        base_movie = st.text_input("Enter a movie title for hybrid recommendations:")
-        quiz_done = st.session_state.get('quiz_done', False)
-        genre_scores = st.session_state.get('genre_scores', {})
+        base_movie = st.text_input("Enter a movie title for hybrid recommendations:" , disabled=is_disabled)
 
-        if st.button("Get Hybrid Recommendations"):
-            if not quiz_done or not genre_scores or sum(genre_scores.values()) == 0:
-                st.warning("🚨 Please complete the quiz first.")
-            elif base_movie.strip() == "":
+
+        if st.button("Get Hybrid Recommendations", disabled=is_disabled):
+
+            if base_movie.strip() == "":
                 st.warning("Please enter a valid movie title.")
             else:
                 st.session_state.run_hybrid = True
