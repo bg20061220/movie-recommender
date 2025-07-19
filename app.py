@@ -14,7 +14,6 @@ st.title("🎬 Movie Recommendation App")
 tab1, tab2 , tab3  = st.tabs(["📌 Content-Based", "🧠 Quiz-Based" , "Hybrid Recommender"])
 
 # Content Based Recommender 
-
 with tab1 : 
     st.subheader("Recommend Movies Based on a Movie You Like")
     movie_name = st.text_input("Enter a movie title you like:")
@@ -100,9 +99,8 @@ with tab2 :
             prev_key = f"movie_pair_{i}"
             if prev_key in st.session_state: 
                 del st.session_state[prev_key]     
-            if st.session_state.quiz_index >= 10 : 
+            if st.session_state.quiz_index >= 4 : 
                 st.session_state.quiz_done = True 
-            print(f"Quiz done in tab 2 : {st.session_state.get('quiz_done', False)}")
                   
 
             st.rerun()
@@ -125,35 +123,37 @@ with tab2 :
                     "genre_scores",  "user_choice"
                 ]:
                     st.session_state.pop(key, None)
-            st.rerun()     
+                
 
  # Hybrid Recommender
 
 with tab3 : 
-        st.subheader("Hybrid Movie Recommender")
-        quiz_done = st.session_state.get('quiz_done', False)
-        genre_scores = st.session_state.get('genre_scores', {})
-        is_disabled = not quiz_done or not genre_scores or sum(genre_scores.values()) == 0
-        print(f"Quiz done: {quiz_done}")
-        if is_disabled:
+    quiz_done = st.session_state.get('quiz_done', False)
+    genre_scores = st.session_state.get('genre_scores', {})
+    print(f"Quiz done: {quiz_done}, Genre scores: {genre_scores}")
+    st.subheader("Hybrid Movie Recommender")
+    quiz_done = st.session_state.get('quiz_done', False)
+    genre_scores = st.session_state.get('genre_scores', {})
+    is_disabled = not quiz_done or not genre_scores or sum(genre_scores.values()) == 0
+    if is_disabled:
             st.warning("🚨 You must complete the quiz first to use the hybrid recommender.")
             st.info("Go to the **Quiz Tab** to finish it. Once done, this section will unlock.")
-        if "hybrid_rec_index" not in st.session_state : 
+    if "hybrid_rec_index" not in st.session_state : 
              st.session_state.hybrid_rec_index = 0 
              st.session_state.hybrid_rec_results = [] 
-        if "run_hybrid" not in st.session_state: 
+    if "run_hybrid" not in st.session_state: 
             st.session_state.run_hybrid = False      
          
-        content_weight = st.slider("Content Similarity Weight", 
+    content_weight = st.slider("Content Similarity Weight", 
             min_value=0.0, max_value=1.0, value=0.5, step=0.05, 
             help="Adjust the weight for content similarity in hybrid recommendations.", disabled=is_disabled) 
         
-        genre_weight = 1 - content_weight
+    genre_weight = 1 - content_weight
 
-        base_movie = st.text_input("Enter a movie title for hybrid recommendations:" , disabled=is_disabled)
+    base_movie = st.text_input("Enter a movie title for hybrid recommendations:" , disabled=is_disabled)
 
 
-        if st.button("Get Hybrid Recommendations", disabled=is_disabled):
+    if st.button("Get Hybrid Recommendations", disabled=is_disabled):
 
             if base_movie.strip() == "":
                 st.warning("Please enter a valid movie title.")
@@ -166,7 +166,7 @@ with tab3 :
                 st.rerun()
 
         # Now check if hybrid should run
-        if st.session_state.run_hybrid and st.session_state.hybrid_rec_results:
+    if st.session_state.run_hybrid and st.session_state.hybrid_rec_results:
             recs_to_show = st.session_state.hybrid_rec_results[
                 st.session_state.hybrid_rec_index : st.session_state.hybrid_rec_index + 5
             ]
