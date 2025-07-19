@@ -2,12 +2,34 @@ import streamlit as st
 from recommender.load_data import clean_movie_data
 from recommender.genre_recommender import  get_recommendations 
 from recommender.recommender import recommend , hybrid_recommend
+import requests 
+from functools import lru_cache
+import os 
+from dotenv import load_dotenv
+load_dotenv() 
+OMDB_API_KEY = os.getenv("OMDB_API_KEY")
 # Load the movie data
 @st.cache_data
 def load_data() :
     return clean_movie_data('data/movies.csv')
 
 df = load_data() 
+
+@lru_cache(maxsize = 1000)
+def get_movie_poster(title, api_key):
+    url = f"http://www.omdbapi.com/?t={title}&apikey={api_key}"
+    response = requests.get(url)
+    print(f"Fetching poster for '{title}' → Status Code: {response.status_code}")
+    if response.status_code == 200:
+        data = response.json()
+        print("API Response:", data)
+        if data.get("Response") == "True" and data.get("Poster") != "N/A":
+            return data.get("Poster")
+        else:
+            print(f"No poster found or movie not found for: {title}")
+    else:
+        print("Error calling OMDB API")
+    return None
 
 st.title("🎬 Movie Recommendation App")
 
@@ -32,6 +54,11 @@ with tab1 :
                 st.info("No more recommendations available.")
             else : 
                 for title in next_batch : 
+                    poster_url = get_movie_poster(title , OMDB_API_KEY)
+                    if poster_url:
+                        st.image(poster_url, width=100, caption=title)
+                    else:
+                         print("Poster not found ")    
                     st.markdown(f"- {title}")
                 st.session_state.rec_index += 5    
         else:
@@ -111,6 +138,11 @@ with tab2 :
 
             recs = get_recommendations(st.session_state.genre_scores, df)
             for title in recs[:st.session_state.recs_to_show]:  
+                poster_url = get_movie_poster(title, OMDB_API_KEY)
+                if poster_url:
+                    st.image(poster_url, width=100, caption=title)
+                else : 
+                     print("Poster not found")
                 st.markdown(f"- {title}")
 
             if st.session_state.recs_to_show < len(recs): 
@@ -170,6 +202,11 @@ with tab3 :
                 st.session_state.hybrid_rec_index : st.session_state.hybrid_rec_index + 5
             ]
             for title in recs_to_show:
+                poster_url = get_movie_poster(title, OMDB_API_KEY)
+                if poster_url:
+                    st.image(poster_url, width=100, caption=title)
+                else: 
+                     print("Poster not found ")
                 st.markdown(f"- {title}")
             st.session_state.hybrid_rec_index += 5
 
