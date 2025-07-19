@@ -130,7 +130,6 @@ with tab2 :
 with tab3 : 
     quiz_done = st.session_state.get('quiz_done', False)
     genre_scores = st.session_state.get('genre_scores', {})
-    print(f"Quiz done: {quiz_done}, Genre scores: {genre_scores}")
     st.subheader("Hybrid Movie Recommender")
     quiz_done = st.session_state.get('quiz_done', False)
     genre_scores = st.session_state.get('genre_scores', {})
