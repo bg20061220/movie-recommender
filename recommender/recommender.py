@@ -76,7 +76,7 @@ def hybrid_recommend(movie_title, df, genre_scores, top_n=10, content_weight=0.7
         hybrid_scores.append((i, final_score))
 
     hybrid_scores = sorted(hybrid_scores, key=lambda x: x[1], reverse=True)
-    top_indices = [i for i, score in hybrid_scores if i != idx][:10]
+    top_indices = [i for i, score in hybrid_scores if i != idx][:20]
     return df.iloc[top_indices]['title'].tolist()
 
 if __name__ == "__main__":
