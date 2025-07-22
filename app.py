@@ -7,7 +7,7 @@ from functools import lru_cache
 import os 
 from dotenv import load_dotenv
 load_dotenv() 
-OMDB_API_KEY = os.getenv("OMDB_API_KEY")
+OMDB_API_KEY = st.secrets["OMDB_API_KEY"]
 
 # Styling
 st.markdown("""
