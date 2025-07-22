@@ -309,7 +309,7 @@ with tab3 :
             if st.session_state.hybrid_rec_index >= len(st.session_state.hybrid_rec_results):
                 st.info("✅ No more recommendations.")
             else:
-                if st.button("Show More"):
+                if st.button("Show More" , key ="show_more_hybrid"):
                     st.rerun()
 
         
